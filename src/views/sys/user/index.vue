@@ -442,6 +442,7 @@ export default {
       this.sexOptions = response.data
     })
     this.getConfigKey('sys.user.initPassword').then(response => {
+      console.log('sys.user.initPassword', response)
       this.initPassword = response.msg
     })
   },
@@ -496,14 +497,16 @@ export default {
     // 表单重置
     reset() {
       this.form = {
-        userId: undefined,
+        id: undefined,
         deptId: undefined,
-        userName: undefined,
-        nickName: undefined,
-        password: undefined,
-        phonenumber: undefined,
+        loginName: undefined,
+        nameChn: undefined,
+        nameEng: undefined,
+        userType: undefined,
         email: undefined,
-        sex: undefined,
+        internalPhone: undefined,
+        mobile: undefined,
+        gender: undefined,
         status: '0',
         remark: undefined,
         postIds: [],
@@ -531,14 +534,20 @@ export default {
     /** 新增按钮操作 */
     handleAdd() {
       this.reset()
+      console.log('handleAdd')
       this.getTreeselect()
-      getUser().then(response => {
-        this.postOptions = response.posts
-        this.roleOptions = response.roles
-        this.open = true
-        this.title = '添加用户'
-        this.form.password = this.initPassword
-      })
+      this.open = true
+      this.title = '添加用户'
+      this.form.password = this.initPassword
+      console.log(this.initPassword)
+      console.log('this.form.password', this.form.password)
+      // getUser().then(response => {
+      //   this.postOptions = response.posts
+      //   this.roleOptions = response.roles
+      //   this.open = true
+      //   this.title = '添加用户'
+      //   this.form.password = this.initPassword
+      // })
     },
     /** 修改按钮操作 */
     handleUpdate(row) {

@@ -117,6 +117,18 @@ export const constantRoutes = [
     ]
   },
   {
+    path: '/sys/config',
+    component: Layout,
+    children: [
+      {
+        path: 'index',
+        component: () => import('@/views/sys/config/index'),
+        name: 'Config',
+        meta: { title: 'Config', icon: 'documentation', affix: true }
+      }
+    ]
+  },
+  {
     path: '/profile',
     component: Layout,
     redirect: '/profile/index',

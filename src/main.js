@@ -21,11 +21,12 @@ import './utils/error-log' // error log
 import * as filters from './filters' // global filters
 
 import { getDicts } from '@/api/sys/dict'
+import { getConfigKey } from '@/api/sys/config'
 import { selectDictLabel, handleTree, parseTime, resetForm, addDateRange } from '@/utils'
 import Pagination from '@/components/Pagination'
 
 Vue.prototype.getDicts = getDicts
-// Vue.prototype.getConfigKey = getConfigKey
+Vue.prototype.getConfigKey = getConfigKey
 Vue.prototype.parseTime = parseTime
 Vue.prototype.resetForm = resetForm
 Vue.prototype.addDateRange = addDateRange
