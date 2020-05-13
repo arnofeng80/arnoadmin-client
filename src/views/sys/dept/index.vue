@@ -227,8 +227,8 @@ export default {
     },
     // 字典状态字典翻译
     statusFormat(row, column) {
-      // return this.selectDictLabel(this.statusOptions, row.status)
-      return ''
+      console.log('formatter')
+      return this.selectDictLabel(this.statusOptions, row.status)
     },
     // 取消按钮
     cancel() {
@@ -245,7 +245,7 @@ export default {
         leader: undefined,
         phone: undefined,
         email: undefined,
-        status: 0
+        status: '0'
       }
       this.resetForm('form')
     },
