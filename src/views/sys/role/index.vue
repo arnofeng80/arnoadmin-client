@@ -11,9 +11,9 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="权限字符" prop="roleKey">
+      <el-form-item label="权限字符" prop="roleCode">
         <el-input
-          v-model="queryParams.roleKey"
+          v-model="queryParams.roleCode"
           placeholder="请输入权限字符"
           clearable
           size="small"
@@ -96,8 +96,8 @@
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="角色编号" prop="roleId" width="120" />
       <el-table-column label="角色名称" prop="roleName" :show-overflow-tooltip="true" width="150" />
-      <el-table-column label="权限字符" prop="roleKey" :show-overflow-tooltip="true" width="150" />
-      <el-table-column label="显示顺序" prop="roleSort" width="100" />
+      <el-table-column label="权限字符" prop="roleCode" :show-overflow-tooltip="true" width="150" />
+      <el-table-column label="显示顺序" prop="orderNum" width="100" />
       <el-table-column label="状态" align="center" width="100">
         <template slot-scope="scope">
           <el-switch
@@ -151,11 +151,11 @@
         <el-form-item label="角色名称" prop="roleName">
           <el-input v-model="form.roleName" placeholder="请输入角色名称" />
         </el-form-item>
-        <el-form-item label="权限字符" prop="roleKey">
-          <el-input v-model="form.roleKey" placeholder="请输入权限字符" />
+        <el-form-item label="权限字符" prop="roleCode">
+          <el-input v-model="form.roleCode" placeholder="请输入权限字符" />
         </el-form-item>
-        <el-form-item label="角色顺序" prop="roleSort">
-          <el-input-number v-model="form.roleSort" controls-position="right" :min="0" />
+        <el-form-item label="角色顺序" prop="orderNum">
+          <el-input-number v-model="form.orderNum" controls-position="right" :min="0" />
         </el-form-item>
         <el-form-item label="状态">
           <el-radio-group v-model="form.status">
@@ -193,7 +193,7 @@
           <el-input v-model="form.roleName" :disabled="true" />
         </el-form-item>
         <el-form-item label="权限字符">
-          <el-input v-model="form.roleKey" :disabled="true" />
+          <el-input v-model="form.roleCode" :disabled="true" />
         </el-form-item>
         <el-form-item label="权限范围">
           <el-select v-model="form.dataScope">
@@ -288,7 +288,7 @@ export default {
         pageNum: 1,
         pageSize: 10,
         roleName: undefined,
-        roleKey: undefined,
+        roleCode: undefined,
         status: undefined
       },
       // 表单参数
@@ -302,10 +302,10 @@ export default {
         roleName: [
           { required: true, message: '角色名称不能为空', trigger: 'blur' }
         ],
-        roleKey: [
+        roleCode: [
           { required: true, message: '权限字符不能为空', trigger: 'blur' }
         ],
-        roleSort: [
+        orderNum: [
           { required: true, message: '角色顺序不能为空', trigger: 'blur' }
         ]
       }
@@ -344,9 +344,11 @@ export default {
     // 所有菜单节点数据
     getMenuAllCheckedKeys() {
       // 目前被选中的菜单节点
-      const checkedKeys = this.$refs.menu.getHalfCheckedKeys()
+      const checkedKeys = this.$refs.menu.getCheckedKeys()
+      console.log('checkedKeys', checkedKeys)
       // 半选中的菜单节点
-      const halfCheckedKeys = this.$refs.menu.getCheckedKeys()
+      const halfCheckedKeys = this.$refs.menu.getHalfCheckedKeys()
+      console.log('halfCheckedKeys', halfCheckedKeys)
       checkedKeys.unshift.apply(checkedKeys, halfCheckedKeys)
       return checkedKeys
     },
@@ -406,10 +408,10 @@ export default {
       this.form = {
         roleId: undefined,
         roleName: undefined,
-        roleKey: undefined,
-        roleSort: 0,
+        roleCode: undefined,
+        orderNum: 0,
         status: '0',
-        menuIds: [],
+        roleMenus: [],
         deptIds: [],
         remark: undefined
       }
@@ -442,11 +444,13 @@ export default {
     /** 修改按钮操作 */
     handleUpdate(row) {
       this.reset()
-      const roleId = row.roleId || this.ids
-      this.$nextTick(() => {
-        this.getRoleMenuTreeselect(roleId)
-      })
+      const roleId = row.id || this.ids
+      // this.$nextTick(() => {
+      //   this.getRoleMenuTreeselect(roleId)
+      // })
       getRole(roleId).then(response => {
+        this.getMenuTreeselect()
+        console.log(response.data)
         this.form = response.data
         this.open = true
         this.title = '修改角色'
@@ -469,7 +473,8 @@ export default {
       this.$refs['form'].validate(valid => {
         if (valid) {
           if (this.form.id != null) {
-            this.form.menuIds = this.getMenuAllCheckedKeys()
+            this.form.roleMenus = this.getMenuAllCheckedKeys().map(item => { return { roleId: this.form.id, menuId: item } })
+            console.log(this.form)
             updateRole(this.form).then(response => {
               if (response.code === 200) {
                 this.msgSuccess('修改成功')
@@ -480,7 +485,8 @@ export default {
               }
             })
           } else {
-            this.form.menuIds = this.getMenuAllCheckedKeys()
+            this.form.roleMenus = this.getMenuAllCheckedKeys().map(item => { return { roleId: this.form.id, menuId: item } })
+            console.log(this.form)
             addRole(this.form).then(response => {
               if (response.code === 200) {
                 this.msgSuccess('新增成功')
