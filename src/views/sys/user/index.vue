@@ -194,8 +194,8 @@
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
         <el-row>
           <el-col :span="12">
-            <el-form-item label="用户昵称" prop="nickName">
-              <el-input v-model="form.nickName" placeholder="请输入用户昵称" />
+            <el-form-item v-if="form.id == undefined" label="賬戶名" prop="loginName">
+              <el-input v-model="form.loginName" placeholder="賬戶名" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -214,20 +214,25 @@
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item v-if="form.userId == undefined" label="用户名称" prop="userName">
-              <el-input v-model="form.userName" placeholder="请输入用户名称" />
+            <el-form-item label="中文名" prop="nameChn">
+              <el-input v-model="form.nameChn" placeholder="请输入中文名" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item v-if="form.userId == undefined" label="用户密码" prop="password">
+            <el-form-item label="英文名" prop="nameEng">
+              <el-input v-model="form.nameEng" placeholder="请输入英文名" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item v-if="form.id == undefined" label="用户密码" prop="password">
               <el-input v-model="form.password" placeholder="请输入用户密码" type="password" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="用户性别">
-              <el-select v-model="form.sex" placeholder="请选择">
+              <el-select v-model="form.gender" placeholder="请选择">
                 <el-option
-                  v-for="dict in sexOptions"
+                  v-for="dict in genderOptions"
                   :key="dict.dictValue"
                   :label="dict.dictLabel"
                   :value="dict.dictValue"
@@ -246,28 +251,14 @@
               </el-radio-group>
             </el-form-item>
           </el-col>
-
-          <el-col :span="12">
-            <el-form-item label="岗位">
-              <el-select v-model="form.postIds" multiple placeholder="请选择">
-                <el-option
-                  v-for="item in postOptions"
-                  :key="item.postId"
-                  :label="item.postName"
-                  :value="item.postId"
-                  :disabled="item.status == 1"
-                />
-              </el-select>
-            </el-form-item>
-          </el-col>
           <el-col :span="12">
             <el-form-item label="角色">
               <el-select v-model="form.roleIds" multiple placeholder="请选择">
                 <el-option
                   v-for="item in roleOptions"
-                  :key="item.roleId"
+                  :key="item.id"
                   :label="item.roleName"
-                  :value="item.roleId"
+                  :value="item.id"
                   :disabled="item.status == 1"
                 />
               </el-select>
@@ -291,7 +282,7 @@
       <el-upload
         ref="upload"
         :limit="1"
-        accept=".xlsx, .xls"
+        accept=".xlsx,.xls"
         :headers="upload.headers"
         :action="upload.url + '?updateSupport=' + upload.updateSupport"
         :disabled="upload.isUploading"
@@ -323,6 +314,7 @@
 import { listUser, getUser, delUser, addUser, updateUser, exportUser, resetUserPwd, changeUserStatus, importTemplate } from '@/api/sys/user'
 import { getToken } from '@/utils/auth'
 import { deptTree } from '@/api/sys/dept'
+import { getRoles } from '@/api/sys/role'
 import Treeselect from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 
@@ -358,9 +350,7 @@ export default {
       // 状态数据字典
       statusOptions: [],
       // 性别状态字典
-      sexOptions: [],
-      // 岗位选项
-      postOptions: [],
+      genderOptions: [],
       // 角色选项
       roleOptions: [],
       // 表单参数
@@ -418,7 +408,7 @@ export default {
         phonenumber: [
           { required: true, message: '手机号码不能为空', trigger: 'blur' },
           {
-            pattern: /^1[3|4|5|6|7|8|9][0-9]\d{8}$/,
+            pattern: /\d{8}$/,
             message: '请输入正确的手机号码',
             trigger: 'blur'
           }
@@ -438,12 +428,15 @@ export default {
     this.getDicts('sys_normal_disable').then(response => {
       this.statusOptions = response.data
     })
-    this.getDicts('sys_user_sex').then(response => {
-      this.sexOptions = response.data
+    this.getDicts('sys_gender').then(response => {
+      this.genderOptions = response.data
     })
     this.getConfigKey('sys.user.initPassword').then(response => {
       console.log('sys.user.initPassword', response)
-      this.initPassword = response.msg
+      this.initPassword = response.data[0].configValue
+    })
+    getRoles().then(response => {
+      this.roleOptions = response.data
     })
   },
   methods: {
@@ -509,7 +502,6 @@ export default {
         gender: undefined,
         status: '0',
         remark: undefined,
-        postIds: [],
         roleIds: []
       }
       this.resetForm('form')
@@ -534,31 +526,21 @@ export default {
     /** 新增按钮操作 */
     handleAdd() {
       this.reset()
-      console.log('handleAdd')
       this.getTreeselect()
       this.open = true
       this.title = '添加用户'
       this.form.password = this.initPassword
-      console.log(this.initPassword)
-      console.log('this.form.password', this.form.password)
-      // getUser().then(response => {
-      //   this.postOptions = response.posts
-      //   this.roleOptions = response.roles
-      //   this.open = true
-      //   this.title = '添加用户'
-      //   this.form.password = this.initPassword
-      // })
+      this.open = true
+      this.title = '添加用户'
+      this.form.password = this.initPassword
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
       this.reset()
       this.getTreeselect()
-      const userId = row.userId || this.ids
+      const userId = row.id || this.ids
       getUser(userId).then(response => {
         this.form = response.data
-        this.postOptions = response.posts
-        this.roleOptions = response.roles
-        this.form.postIds = response.postIds
         this.form.roleIds = response.roleIds
         this.open = true
         this.title = '修改用户'
@@ -584,7 +566,7 @@ export default {
     submitForm: function() {
       this.$refs['form'].validate(valid => {
         if (valid) {
-          if (this.form.userId != null) {
+          if (this.form.id != null) {
             updateUser(this.form).then(response => {
               if (response.code === 200) {
                 this.msgSuccess('修改成功')

@@ -9,6 +9,13 @@ export function listRole(query) {
   })
 }
 
+export function getRoles() {
+  return request({
+    url: '/sys/role/all',
+    method: 'get'
+  })
+}
+
 // 查询角色详细
 export function getRole(roleId) {
   return request({

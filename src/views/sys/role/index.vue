@@ -227,7 +227,7 @@
 
 <script>
 import { listRole, getRole, delRole, addRole, updateRole, exportRole, dataScope, changeRoleStatus } from '@/api/sys/role'
-import { treeselect as menuTreeselect, roleMenuTreeselect } from '@/api/sys/menu'
+import { treeselect as menuTreeselect, getMenuByRoleId } from '@/api/sys/menu'
 import { treeselect as deptTreeselect, roleDeptTreeselect } from '@/api/sys/dept'
 
 export default {
@@ -331,7 +331,7 @@ export default {
     },
     /** 查询菜单树结构 */
     getMenuTreeselect() {
-      menuTreeselect().then(response => {
+      return menuTreeselect().then(response => {
         this.menuOptions = response.data
       })
     },
@@ -360,13 +360,6 @@ export default {
       const halfCheckedKeys = this.$refs.dept.getCheckedKeys()
       checkedKeys.unshift.apply(checkedKeys, halfCheckedKeys)
       return checkedKeys
-    },
-    /** 根据角色ID查询菜单树结构 */
-    getRoleMenuTreeselect(roleId) {
-      roleMenuTreeselect(roleId).then(response => {
-        this.menuOptions = response.menus
-        this.$refs.menu.setCheckedKeys(response.checkedKeys)
-      })
     },
     /** 根据角色ID查询部门树结构 */
     getRoleDeptTreeselect(roleId) {
@@ -454,6 +447,11 @@ export default {
         this.form = response.data
         this.open = true
         this.title = '修改角色'
+      }).then(response => {
+        console.log('roleMenuTreeselect', roleId)
+        getMenuByRoleId(roleId).then(response => {
+          this.$refs.menu.setCheckedKeys(response.data.map(x => { return x.menuId }))
+        })
       })
     },
     /** 分配数据权限操作 */
