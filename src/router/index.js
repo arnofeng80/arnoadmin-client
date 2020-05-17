@@ -81,78 +81,6 @@ export const constantRoutes = [
     ]
   },
   {
-    path: '/sys/user',
-    component: Layout,
-    children: [
-      {
-        path: 'index',
-        component: () => import('@/views/sys/user/index'),
-        name: 'User',
-        meta: { title: 'User', icon: 'documentation', affix: true }
-      }
-    ]
-  },
-  {
-    path: '/sys/dept',
-    component: Layout,
-    children: [
-      {
-        path: 'index',
-        component: () => import('@/views/sys/dept/index'),
-        name: 'Department',
-        meta: { title: 'Department', icon: 'documentation', affix: true }
-      }
-    ]
-  },
-  {
-    path: '/sys/dict',
-    component: Layout,
-    children: [
-      {
-        path: 'index',
-        component: () => import('@/views/sys/dict/index'),
-        name: 'Dict',
-        meta: { title: 'Dict', icon: 'documentation', affix: true }
-      }
-    ]
-  },
-  {
-    path: '/sys/config',
-    component: Layout,
-    children: [
-      {
-        path: 'index',
-        component: () => import('@/views/sys/config/index'),
-        name: 'Config',
-        meta: { title: 'Config', icon: 'documentation', affix: true }
-      }
-    ]
-  },
-  {
-    path: '/sys/menu',
-    component: Layout,
-    children: [
-      {
-        path: 'index',
-        component: () => import('@/views/sys/menu/index'),
-        name: 'Menu',
-        meta: { title: 'Menu', icon: 'documentation', affix: true }
-      }
-    ]
-  },
-  {
-    path: '/sys/role',
-    component: Layout,
-    children: [
-      {
-        path: 'index',
-        component: () => import('@/views/sys/role/index'),
-        name: 'Role',
-        meta: { title: 'Role', icon: 'documentation', affix: true }
-      }
-    ]
-  },
-  {
     path: '/profile',
     component: Layout,
     redirect: '/profile/index',
@@ -166,53 +94,6 @@ export const constantRoutes = [
       }
     ]
   }
-]
-
-/**
- * asyncRoutes
- * the routes that need to be dynamically loaded based on user roles
- */
-export const asyncRoutes = [
-  /** when your routing map is too long, you can split it into small modules **/
-  {
-    path: '/error',
-    component: Layout,
-    redirect: 'noRedirect',
-    name: 'ErrorPages',
-    meta: {
-      title: 'Error Pages',
-      icon: '404'
-    },
-    children: [
-      {
-        path: '401',
-        component: () => import('@/views/error-page/401'),
-        name: 'Page401',
-        meta: { title: '401', noCache: true }
-      },
-      {
-        path: '404',
-        component: () => import('@/views/error-page/404'),
-        name: 'Page404',
-        meta: { title: '404', noCache: true }
-      }
-    ]
-  },
-
-  {
-    path: '/error-log',
-    component: Layout,
-    children: [
-      {
-        path: 'log',
-        component: () => import('@/views/error-log/index'),
-        name: 'ErrorLog',
-        meta: { title: 'Error Log', icon: 'bug' }
-      }
-    ]
-  },
-  // 404 page must be placed at the end !!!
-  { path: '*', redirect: '/404', hidden: true }
 ]
 
 const createRouter = () => new Router({

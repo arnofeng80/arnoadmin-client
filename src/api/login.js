@@ -1,16 +1,11 @@
 import request from '@/utils/request'
 
-export function login(username, password, code, uuid) {
-  const data = {
-    username,
-    password,
-    code,
-    uuid
-  }
+export function login(data) {
+  console.log('inner login', data)
   return request({
     url: '/login',
     method: 'post',
-    params: data
+    data: data
   })
 }
 
