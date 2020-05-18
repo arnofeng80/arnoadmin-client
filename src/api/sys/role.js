@@ -43,9 +43,9 @@ export function updateRole(data) {
 }
 
 // 角色数据权限
-export function dataScope(data) {
+export function updateDataScope(data) {
   return request({
-    url: '/sys/role/dataScope',
+    url: '/sys/role/updateDataScope',
     method: 'put',
     data: data
   })
@@ -53,22 +53,31 @@ export function dataScope(data) {
 
 // 角色状态修改
 export function changeRoleStatus(roleId, status) {
-  const data = {
-    roleId,
-    status
-  }
   return request({
     url: '/sys/role/changeStatus',
     method: 'put',
-    data: data
+    data: {
+      id: roleId,
+      status
+    }
   })
 }
 
 // 删除角色
 export function delRole(roleId) {
+  console.log(roleId)
   return request({
-    url: '/sys/role/' + roleId,
-    method: 'delete'
+    url: '/sys/role',
+    method: 'delete',
+    data: roleId
+  })
+}
+
+export function batchDelDept(ids) {
+  return request({
+    url: '/sys/role',
+    method: 'delete',
+    data: ids
   })
 }
 
