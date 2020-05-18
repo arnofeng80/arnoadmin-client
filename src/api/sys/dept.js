@@ -26,9 +26,9 @@ export function deptTree() {
 }
 
 // 根据角色ID查询部门树结构
-export function roleDeptTreeselect(roleId) {
+export function getDeptByRoleId(roleId) {
   return request({
-    url: '/sys/dept/roleDeptTreeselect/' + roleId,
+    url: '/sys/role/dept/' + roleId,
     method: 'get'
   })
 }
@@ -58,3 +58,4 @@ export function delDept(deptId) {
     method: 'delete'
   })
 }
+

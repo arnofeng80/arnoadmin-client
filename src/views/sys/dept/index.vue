@@ -201,10 +201,7 @@ export default {
     getList() {
       this.loading = true
       listDept(this.queryParams).then(response => {
-        // response.data.data = response.data.data.map(item => { item.createTime = new Date(item.createTime) })
-        console.log(response.data)
         this.deptList = this.handleTree(response.data, 'id')
-        console.log(this.deptList)
         this.loading = false
       })
     },
