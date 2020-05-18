@@ -103,8 +103,8 @@
         <template slot-scope="scope">
           <el-switch
             v-model="scope.row.status"
-            active-value="0"
-            inactive-value="1"
+            active-value="1"
+            inactive-value="0"
             @change="handleStatusChange(scope.row)"
           />
         </template>
@@ -196,7 +196,7 @@ export default {
   },
   created() {
     this.getList()
-    this.getDicts('sys_normal_disable').then(response => {
+    this.getDicts('sys_available').then(response => {
       this.statusOptions = response.data
     })
   },

@@ -75,7 +75,7 @@ export default {
 
   },
   created() {
-    this.getDicts('sys_normal_disable').then(response => {
+    this.getDicts('sys_available').then(response => {
       this.statusOptions = response.data
     })
   },
@@ -141,8 +141,8 @@ export default {
         id: undefined,
         roleName: undefined,
         roleCode: undefined,
-        orderNum: 0,
-        status: '0',
+        orderNum: 1,
+        status: '1',
         roleMenus: [],
         remark: undefined
       }

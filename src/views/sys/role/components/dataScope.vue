@@ -18,7 +18,7 @@
             />
           </el-select>
         </el-form-item>
-        <el-form-item v-show="form.dataScope === '2'" label="數據許可權">
+        <el-form-item v-show="form.dataScope === '2'" label="數據權限">
           <el-tree
             ref="dept"
             :data="deptOptions"
