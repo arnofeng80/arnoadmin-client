@@ -94,12 +94,12 @@
       </el-row>
     </div>
 
-    <el-table v-loading="loading" :data="roleList" border fit highlight-current-row @selection-change="handleSelectionChange">
+    <el-table v-loading="loading" :data="roleList" border highlight-current-row :stripe="true" :default-sort="queryParams.sort" @selection-change="handleSelectionChange" @sort-change="sortChange">
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="角色名稱" prop="roleName" :show-overflow-tooltip="true" width="150" />
-      <el-table-column label="角色編碼" prop="roleCode" :show-overflow-tooltip="true" width="150" />
-      <el-table-column label="顯示順序" prop="orderNum" width="100" />
-      <el-table-column label="狀態" align="center" width="100">
+      <el-table-column label="角色編碼" prop="roleCode" sortable="custom" :show-overflow-tooltip="true" width="150" />
+      <el-table-column label="排序" prop="orderNum" sortable="custom" width="100" />
+      <el-table-column label="狀態" align="center" prop="status" sortable width="100">
         <template slot-scope="scope">
           <el-switch
             v-model="scope.row.status"
@@ -109,7 +109,7 @@
           />
         </template>
       </el-table-column>
-      <el-table-column label="創建時間" align="center" prop="createTime" width="180">
+      <el-table-column label="創建時間" align="center" prop="createTime" sortable="custom" width="180">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.createTime) }}</span>
         </template>
@@ -190,6 +190,8 @@ export default {
         pageSize: 10,
         roleName: undefined,
         roleCode: undefined,
+        sortColumn: 'orderNum',
+        sortType: 'ascending',
         status: undefined
       }
     }
@@ -204,13 +206,19 @@ export default {
     /** 查詢角色列表 */
     getList() {
       this.loading = true
-      listRole(this.addDateRange(this.queryParams, this.dateRange)).then(
+      listRole(this.addDateRange(this.queryParams, this.dateRange, 'createTime')).then(
         response => {
           this.roleList = response.data.rows
           this.total = response.data.totalCount
           this.loading = false
         }
       )
+    },
+    sortChange(column) {
+      console.log(column)
+      this.queryParams.sortColumn = column.prop
+      this.queryParams.sortType = column.order
+      this.getList()
     },
     // 角色狀態修改
     handleStatusChange(row) {

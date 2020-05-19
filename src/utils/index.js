@@ -399,15 +399,14 @@ export function resetForm(refName) {
   }
 }
 
-export function addDateRange(params, dateRange) {
-  var search = params
-  search.beginTime = ''
-  search.endTime = ''
-  if (dateRange !== null && dateRange !== undefined && dateRange !== '') {
-    search.beginTime = this.dateRange[0]
-    search.endTime = this.dateRange[1]
+export function addDateRange(params, dateRange, propName) {
+  if (dateRange !== null && dateRange !== undefined && dateRange !== '' && dateRange.length === 2) {
+    params[propName] = { beginTime: dateRange[0], endTime: dateRange[1] + ' 23:59:59.9999999' }
+    console.log(params[propName])
+  } else {
+    params[propName] = undefined
   }
-  return search
+  return params
 }
 
 export function praseStrEmpty(str) {
