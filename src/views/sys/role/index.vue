@@ -211,8 +211,7 @@ export default {
           this.roleList = response.data.rows
           this.total = response.data.totalCount
           this.loading = false
-        }
-      )
+        })
     },
     sortChange(column) {
       console.log(column)
@@ -269,7 +268,7 @@ export default {
     /** 刪除按鈕操作 */
     handleDelete(row) {
       const roleIds = row.id != null ? [row.id] : this.ids
-      this.$confirm('是否確認刪?', '警告', {
+      this.$confirm('是否確認刪除?', '警告', {
         confirmButtonText: '確定',
         cancelButtonText: '取消',
         type: 'warning'

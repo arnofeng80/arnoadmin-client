@@ -3,8 +3,8 @@
     <el-dialog :title="title" :visible.sync="open" width="600px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
         <el-row>
-          <el-col :span="12">
-            <el-form-item v-if="form.id == undefined" label="賬戶名" prop="loginName">
+          <el-col v-if="form.id == undefined" :span="12">
+            <el-form-item label="賬戶名" prop="loginName">
               <el-input v-model="form.loginName" placeholder="賬戶名" />
             </el-form-item>
           </el-col>
@@ -38,8 +38,8 @@
               <el-input v-model="form.email" placeholder="請輸入郵箱" maxlength="50" />
             </el-form-item>
           </el-col>
-          <el-col :span="12">
-            <el-form-item v-if="form.id == undefined" label="用戶密碼" prop="password">
+          <el-col v-if="form.id == undefined" :span="12">
+            <el-form-item label="用戶密碼" prop="password">
               <el-input v-model="form.password" placeholder="請輸入用戶密碼" type="password" />
             </el-form-item>
           </el-col>
@@ -94,7 +94,7 @@
   </div>
 </template>
 <script>
-import { getUser, addUser, updateUser } from '@/api/sys/user'
+import { getUser, addUser, updateUser, getRoleByUserId } from '@/api/sys/user'
 import { getRoles } from '@/api/sys/role'
 import Treeselect from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
@@ -143,12 +143,10 @@ export default {
 
   },
   created() {
-    console.log('dialog deptOptions', this.deptOptions)
     this.getDicts('sys_gender').then(response => {
       this.genderOptions = response.data
     })
     this.getConfigKey('sys.user.initPassword').then(response => {
-      console.log('sys.user.initPassword', response)
       this.initPassword = response.data[0].configValue
     })
     getRoles().then(response => {
@@ -165,11 +163,17 @@ export default {
     edit(userId) {
       this.reset()
       getUser(userId).then(response => {
-        this.form = response.data
-        this.form.roleIds = response.roleIds
-        this.open = true
-        this.title = '修改用戶'
-        this.form.password = ''
+        var formdata = response.data
+        getRoleByUserId(userId).then(response => {
+          formdata.roleIds = response.data.map(item => { return item.roleId })
+          formdata.password = ''
+          this.form = formdata
+          this.open = true
+          this.title = '修改用戶'
+          console.log(formdata)
+        })
+      }).then(response => {
+        console.log('then respone', response)
       })
     },
     cancel() {
@@ -179,7 +183,7 @@ export default {
     submitForm: function() {
       this.$refs['form'].validate(valid => {
         if (valid) {
-          this.form.userRoles = this.form.roleIds.map(item => { return { roleId: this.form.id, item } })
+          this.form.userRoles = this.form.roleIds.map(item => { return { roleId: item, userId: this.form.id } })
           if (this.form.id != null) {
             updateUser(this.form).then(response => {
               if (response.code === 200) {

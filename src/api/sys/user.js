@@ -38,9 +38,11 @@ export function updateUser(data) {
 
 // 删除用户
 export function delUser(userId) {
+  console.log(userId)
   return request({
-    url: '/sys/user/' + userId,
-    method: 'delete'
+    url: '/sys/user',
+    method: 'delete',
+    data: userId
   })
 }
 
@@ -55,14 +57,10 @@ export function exportUser(query) {
 
 // 用户密码重置
 export function resetUserPwd(userId, password) {
-  const data = {
-    userId,
-    password
-  }
   return request({
     url: '/sys/user/resetPwd',
     method: 'put',
-    data: data
+    data: { id: userId, password: password }
   })
 }
 
@@ -102,6 +100,13 @@ export function updateUserPwd(oldPassword, newPassword) {
     url: '/sys/user/profile/updatePwd',
     method: 'put',
     params: data
+  })
+}
+
+export function getRoleByUserId(userId) {
+  return request({
+    url: '/sys/user/dept/' + userId,
+    method: 'get'
   })
 }
 

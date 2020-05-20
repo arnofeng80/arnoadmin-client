@@ -38,9 +38,9 @@
   </div>
 </template>
 <script>
-import { getRole } from '@/api/sys/role'
+import { getRole, getDeptByRoleId } from '@/api/sys/role'
 import { updateDataScope } from '@/api/sys/role'
-import { deptTree as deptTreeselect, getDeptByRoleId } from '@/api/sys/dept'
+import { deptTree as deptTreeselect } from '@/api/sys/dept'
 export default {
   data() {
     return {

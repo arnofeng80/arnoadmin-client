@@ -63,21 +63,28 @@ export function changeRoleStatus(roleId, status) {
   })
 }
 
+// 根据角色ID查询菜单下拉树结构
+export function getMenuByRoleId(roleId) {
+  return request({
+    url: '/sys/role/menu/' + roleId,
+    method: 'get'
+  })
+}
+
+// 根据角色ID查询部门树结构
+export function getDeptByRoleId(roleId) {
+  return request({
+    url: '/sys/role/dept/' + roleId,
+    method: 'get'
+  })
+}
+
 // 删除角色
 export function delRole(roleId) {
-  console.log(roleId)
   return request({
     url: '/sys/role',
     method: 'delete',
     data: roleId
-  })
-}
-
-export function batchDelDept(ids) {
-  return request({
-    url: '/sys/role',
-    method: 'delete',
-    data: ids
   })
 }
 

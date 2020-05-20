@@ -25,14 +25,6 @@ export function deptTree() {
   })
 }
 
-// 根据角色ID查询部门树结构
-export function getDeptByRoleId(roleId) {
-  return request({
-    url: '/sys/role/dept/' + roleId,
-    method: 'get'
-  })
-}
-
 // 新增部门
 export function addDept(data) {
   return request({

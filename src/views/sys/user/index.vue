@@ -138,11 +138,15 @@
         </el-row>
 
         <el-table v-loading="loading" :data="userList" @selection-change="handleSelectionChange">
-          <el-table-column type="selection" width="40" align="center" />
+          <el-table-column type="selection" width="55" align="center" />
           <el-table-column label="登入名" align="center" prop="loginName" />
           <el-table-column label="中文名" align="center" prop="nameChn" :show-overflow-tooltip="true" />
           <el-table-column label="英文名" align="center" prop="nameEng" :show-overflow-tooltip="true" />
-          <el-table-column label="部門" align="center" prop="dept.deptName" :show-overflow-tooltip="true" />
+          <el-table-column label="部門" align="center" :show-overflow-tooltip="true">
+            <template slot-scope="scope">
+              {{ scope.row.deptId }}
+            </template>
+          </el-table-column>
           <el-table-column label="內線號碼" align="center" prop="internalPhone" width="120" />
           <el-table-column label="狀態" align="center">
             <template slot-scope="scope">
@@ -305,6 +309,9 @@ export default {
       }
     }
   },
+  computed: {
+
+  },
   watch: {
     // 根據名稱篩選部門樹
     deptName(val) {
@@ -316,20 +323,17 @@ export default {
     this.getTreeselect()
     this.getDicts('sys_available').then(response => {
       this.statusOptions = response.data
-      console.log('this.statusOptions', this.statusOptions)
     })
   },
   methods: {
     /** 查詢用戶列表 */
     getList() {
       this.loading = true
-      listUser(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
-        console.log('getList', response)
+      listUser(this.addDateRange(this.queryParams, this.dateRange, 'createTime')).then(response => {
         this.userList = response.data.rows
         this.total = response.data.totalCount
         this.loading = false
-      }
-      )
+      })
     },
     /** 查詢部門下拉樹結構 */
     getTreeselect() {
@@ -388,7 +392,7 @@ export default {
     },
     // 多選框選中數據
     handleSelectionChange(selection) {
-      this.ids = selection.map(item => item.userId)
+      this.ids = selection.map(item => item.id)
       this.single = selection.length !== 1
       this.multiple = !selection.length
     },
@@ -403,11 +407,11 @@ export default {
     },
     /** 重置密碼按鈕操作 */
     handleResetPwd(row) {
-      this.$prompt('請輸入"' + row.userName + '"的新密碼', '提示', {
+      this.$prompt('請輸入"' + row.loginName + '"的新密碼', '提示', {
         confirmButtonText: '確定',
         cancelButtonText: '取消'
       }).then(({ value }) => {
-        resetUserPwd(row.userId, value).then(response => {
+        resetUserPwd(row.id, value).then(response => {
           if (response.code === 200) {
             this.msgSuccess('修改成功，新密碼是：' + value)
           } else {
@@ -418,8 +422,8 @@ export default {
     },
     /** 刪除按鈕操作 */
     handleDelete(row) {
-      const userIds = row.userId || this.ids
-      this.$confirm('是否確認刪除用戶編號為"' + userIds + '"的資料項目?', '警告', {
+      const userIds = row.id != null ? [row.id] : this.ids
+      this.$confirm('是否確認刪除?', '警告', {
         confirmButtonText: '確定',
         cancelButtonText: '取消',
         type: 'warning'

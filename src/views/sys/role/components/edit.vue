@@ -42,8 +42,8 @@
   </div>
 </template>
 <script>
-import { getRole, addRole, updateRole } from '@/api/sys/role'
-import { treeselect as menuTreeselect, getMenuByRoleId } from '@/api/sys/menu'
+import { getRole, addRole, updateRole, getMenuByRoleId } from '@/api/sys/role'
+import { treeselect as menuTreeselect } from '@/api/sys/menu'
 export default {
   data() {
     return {
