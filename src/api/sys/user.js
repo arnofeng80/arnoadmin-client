@@ -2,11 +2,11 @@ import request from '@/utils/request'
 import { praseStrEmpty } from '@/utils'
 
 // 查询用户列表
-export function listUser(query) {
+export function listUser(data) {
   return request({
     url: '/sys/user/list',
-    method: 'get',
-    params: query
+    method: 'post',
+    data: data
   })
 }
 
@@ -68,14 +68,10 @@ export function resetUserPwd(userId, password) {
 
 // 用户状态修改
 export function changeUserStatus(userId, status) {
-  const data = {
-    userId,
-    status
-  }
   return request({
     url: '/sys/user/changeStatus',
     method: 'put',
-    data: data
+    data: { id: userId, status: status }
   })
 }
 

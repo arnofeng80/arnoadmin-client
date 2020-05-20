@@ -106,8 +106,8 @@ export default {
     submitForm: function() {
       this.$refs['form'].validate(valid => {
         if (valid) {
+          this.form.roleMenus = this.getMenuAllCheckedKeys().map(item => { return { roleId: this.form.id, menuId: item } })
           if (this.form.id != null) {
-            this.form.roleMenus = this.getMenuAllCheckedKeys().map(item => { return { roleId: this.form.id, menuId: item } })
             updateRole(this.form).then(response => {
               if (response.code === 200) {
                 this.msgSuccess('修改成功')
@@ -118,7 +118,6 @@ export default {
               }
             })
           } else {
-            this.form.roleMenus = this.getMenuAllCheckedKeys().map(item => { return { roleId: this.form.id, menuId: item } })
             addRole(this.form).then(response => {
               if (response.code === 200) {
                 this.msgSuccess('新增成功')

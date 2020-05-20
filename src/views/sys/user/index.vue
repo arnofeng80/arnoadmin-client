@@ -200,7 +200,12 @@
     </el-row>
 
     <!-- 添加或修改參數配置對話方塊 -->
-
+    <edit
+      ref="editor"
+      :dept-options="deptOptions"
+      :status-options="statusOptions"
+      @getList="getList"
+    />
     <!-- 用戶導入對話方塊 -->
     <el-dialog :title="upload.title" :visible.sync="upload.open" width="400px" append-to-body>
       <el-upload
@@ -235,15 +240,14 @@
 </template>
 
 <script>
-import { listUser, getUser, delUser, addUser, updateUser, exportUser, resetUserPwd, changeUserStatus, importTemplate } from '@/api/sys/user'
+import Edit from '@/views/sys/user/components/edit'
+import { listUser, delUser, exportUser, resetUserPwd, changeUserStatus, importTemplate } from '@/api/sys/user'
 import { getToken } from '@/utils/auth'
 import { deptTree } from '@/api/sys/dept'
-import { getRoles } from '@/api/sys/role'
-
-import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 
 export default {
   name: 'User',
+  components: { Edit },
   data() {
     return {
       // 遮罩層
@@ -258,24 +262,16 @@ export default {
       total: 0,
       // 使用者表格資料
       userList: null,
-      // 彈出層標題
-      title: '',
       // 部門樹選項
       deptOptions: undefined,
       // 是否顯示彈出層
       open: false,
       // 部門名稱
       deptName: undefined,
-      // 預設密碼
-      initPassword: undefined,
       // 日期範圍
       dateRange: [],
       // 狀態資料字典
       statusOptions: [],
-      // 性別狀態字典
-      genderOptions: [],
-      // 角色選項
-      roleOptions: [],
       // 表單參數
       form: {},
       defaultProps: {
@@ -306,30 +302,6 @@ export default {
         nameEng: undefined,
         status: undefined,
         deptId: undefined
-      },
-      // 表單校驗
-      rules: {
-        loginName: [{ required: true, message: '用戶名稱不能為空', trigger: 'blur' }],
-        nameChn: [{ required: true, message: '用戶昵稱不能為空', trigger: 'blur' }],
-        nameEng: [{ required: true, message: '用戶昵稱不能為空', trigger: 'blur' }],
-        deptId: [{ required: true, message: '歸屬部門不能為空', trigger: 'blur' }],
-        password: [{ required: true, message: '使用者密碼不能為空', trigger: 'blur' }],
-        email: [
-          { required: true, message: '郵箱位址不能為空', trigger: 'blur' },
-          {
-            type: 'email',
-            message: "'請輸入正確的郵箱位址",
-            trigger: ['blur', 'change']
-          }
-        ],
-        phonenumber: [
-          { required: true, message: '手機號碼不能為空', trigger: 'blur' },
-          {
-            pattern: /\d{8}$/,
-            message: '請輸入正確的手機號碼',
-            trigger: 'blur'
-          }
-        ]
       }
     }
   },
@@ -344,16 +316,7 @@ export default {
     this.getTreeselect()
     this.getDicts('sys_available').then(response => {
       this.statusOptions = response.data
-    })
-    this.getDicts('sys_gender').then(response => {
-      this.genderOptions = response.data
-    })
-    this.getConfigKey('sys.user.initPassword').then(response => {
-      console.log('sys.user.initPassword', response)
-      this.initPassword = response.data[0].configValue
-    })
-    getRoles().then(response => {
-      this.roleOptions = response.data
+      console.log('this.statusOptions', this.statusOptions)
     })
   },
   methods: {
@@ -371,7 +334,19 @@ export default {
     /** 查詢部門下拉樹結構 */
     getTreeselect() {
       deptTree().then(response => {
+        if (response.data != null && response.data.length > 0) {
+          this.clearLeafChild(response.data)
+        }
         this.deptOptions = response.data
+      })
+    },
+    clearLeafChild(child) {
+      child.forEach(item => {
+        if (item.children.length === 0) {
+          item.children = undefined
+        } else {
+          this.clearLeafChild(item.children)
+        }
       })
     },
     // 篩選節點
@@ -386,42 +361,19 @@ export default {
     },
     // 使用者狀態修改
     handleStatusChange(row) {
+      console.log(row.status)
       const text = row.status === '1' ? '啟用' : '停用'
-      this.$confirm('確認要"' + text + '"' + row.userName + '用戶嗎?', '警告', {
+      this.$confirm('確認要"' + text + '"' + row.loginName + '用戶嗎?', '警告', {
         confirmButtonText: '確定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(function() {
-        return changeUserStatus(row.userId, row.status)
+        return changeUserStatus(row.id, row.status)
       }).then(() => {
         this.msgSuccess(text + '成功')
       }).catch(function() {
         row.status = row.status === '0' ? '1' : '0'
       })
-    },
-    // 取消按鈕
-    cancel() {
-      this.open = false
-      this.reset()
-    },
-    // 表單重置
-    reset() {
-      this.form = {
-        id: undefined,
-        deptId: undefined,
-        loginName: undefined,
-        nameChn: undefined,
-        nameEng: undefined,
-        userType: undefined,
-        email: undefined,
-        internalPhone: undefined,
-        mobile: undefined,
-        gender: undefined,
-        status: '0',
-        remark: undefined,
-        roleIds: []
-      }
-      this.resetForm('form')
     },
     /** 搜索按鈕操作 */
     handleQuery() {
@@ -442,27 +394,12 @@ export default {
     },
     /** 新增按鈕操作 */
     handleAdd() {
-      this.reset()
-      this.getTreeselect()
-      this.open = true
-      this.title = '添加用戶'
-      this.form.password = this.initPassword
-      this.open = true
-      this.title = '添加用戶'
-      this.form.password = this.initPassword
+      this.$refs['editor'].create()
     },
     /** 修改按鈕操作 */
     handleUpdate(row) {
-      this.reset()
-      this.getTreeselect()
       const userId = row.id || this.ids
-      getUser(userId).then(response => {
-        this.form = response.data
-        this.form.roleIds = response.roleIds
-        this.open = true
-        this.title = '修改用戶'
-        this.form.password = ''
-      })
+      this.$refs['editor'].edit(userId)
     },
     /** 重置密碼按鈕操作 */
     handleResetPwd(row) {
@@ -478,34 +415,6 @@ export default {
           }
         })
       }).catch(() => {})
-    },
-    /** 提交按鈕 */
-    submitForm: function() {
-      this.$refs['form'].validate(valid => {
-        if (valid) {
-          if (this.form.id != null) {
-            updateUser(this.form).then(response => {
-              if (response.code === 200) {
-                this.msgSuccess('修改成功')
-                this.open = false
-                this.getList()
-              } else {
-                this.msgError(response.msg)
-              }
-            })
-          } else {
-            addUser(this.form).then(response => {
-              if (response.code === 200) {
-                this.msgSuccess('新增成功')
-                this.open = false
-                this.getList()
-              } else {
-                this.msgError(response.msg)
-              }
-            })
-          }
-        }
-      })
     },
     /** 刪除按鈕操作 */
     handleDelete(row) {

@@ -14,16 +14,6 @@
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="手機號碼" prop="phonenumber">
-              <el-input v-model="form.phonenumber" placeholder="請輸入手機號碼" maxlength="11" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="郵箱" prop="email">
-              <el-input v-model="form.email" placeholder="請輸入郵箱" maxlength="50" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
             <el-form-item label="中文名" prop="nameChn">
               <el-input v-model="form.nameChn" placeholder="請輸入中文名" />
             </el-form-item>
@@ -34,8 +24,23 @@
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item v-if="form.id == undefined" label="使用者密碼" prop="password">
-              <el-input v-model="form.password" placeholder="請輸入使用者密碼" type="password" />
+            <el-form-item label="內線電話" prop="internalPhone">
+              <el-input v-model="form.internalPhone" placeholder="請輸入內線電話" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="手機號碼" prop="mobile">
+              <el-input v-model="form.mobile" placeholder="請輸入手機號碼" maxlength="11" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="郵箱" prop="email">
+              <el-input v-model="form.email" placeholder="請輸入郵箱" maxlength="50" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item v-if="form.id == undefined" label="用戶密碼" prop="password">
+              <el-input v-model="form.password" placeholder="請輸入用戶密碼" type="password" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -69,7 +74,7 @@
                   :key="item.id"
                   :label="item.roleName"
                   :value="item.id"
-                  :disabled="item.status == 1"
+                  :disabled="item.status === '0'"
                 />
               </el-select>
             </el-form-item>
@@ -89,31 +94,47 @@
   </div>
 </template>
 <script>
-import { getRole, addRole, updateRole } from '@/api/sys/role'
-import { treeselect as menuTreeselect, getMenuByRoleId } from '@/api/sys/menu'
+import { getUser, addUser, updateUser } from '@/api/sys/user'
+import { getRoles } from '@/api/sys/role'
+import Treeselect from '@riophae/vue-treeselect'
+import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 export default {
+  components: { Treeselect },
+  props: {
+    deptOptions: {
+      type: Array,
+      default() {
+        return []
+      }
+    },
+    statusOptions: {
+      type: Array,
+      default() {
+        return []
+      }
+    }
+  },
   data() {
     return {
       open: false,
-      // 彈出層標題
       title: '',
+      initPassword: undefined,
       form: {},
-      // 菜單清單
-      menuOptions: [],
-      statusOptions: [],
-      defaultProps: {
-        children: 'children',
-        label: 'label'
-      },
+      genderOptions: [],
+      roleOptions: [],
       rules: {
-        roleName: [
-          { required: true, message: '角色名稱不能為空', trigger: 'blur' }
-        ],
-        roleCode: [
-          { required: true, message: '角色編碼不能為空', trigger: 'blur' }
-        ],
-        orderNum: [
-          { required: true, message: '角色順序不能為空', trigger: 'blur' }
+        loginName: [{ required: true, message: '登入名不能為空', trigger: 'blur' }],
+        nameChn: [{ required: true, message: '中文名不能為空', trigger: 'blur' }],
+        nameEng: [{ required: true, message: '英文名不能為空', trigger: 'blur' }],
+        deptId: [{ required: true, message: '歸屬部門不能為空', trigger: 'blur' }],
+        password: [{ required: true, message: '使用者密碼不能為空', trigger: 'blur' }],
+        email: [
+          { required: true, message: '郵箱位址不能為空', trigger: 'blur' },
+          {
+            type: 'email',
+            message: "'請輸入正確的郵箱位址",
+            trigger: ['blur', 'change']
+          }
         ]
       }
     }
@@ -122,28 +143,33 @@ export default {
 
   },
   created() {
-    this.getDicts('sys_available').then(response => {
-      this.statusOptions = response.data
+    console.log('dialog deptOptions', this.deptOptions)
+    this.getDicts('sys_gender').then(response => {
+      this.genderOptions = response.data
+    })
+    this.getConfigKey('sys.user.initPassword').then(response => {
+      console.log('sys.user.initPassword', response)
+      this.initPassword = response.data[0].configValue
+    })
+    getRoles().then(response => {
+      this.roleOptions = response.data
     })
   },
   methods: {
     create() {
       this.reset()
-      this.getMenuTreeselect()
       this.open = true
-      this.title = '添加角色'
+      this.title = '添加用戶'
+      this.form.password = this.initPassword
     },
-    edit(roleId) {
+    edit(userId) {
       this.reset()
-      getRole(roleId).then(response => {
+      getUser(userId).then(response => {
         this.form = response.data
+        this.form.roleIds = response.roleIds
         this.open = true
-        this.title = '修改角色'
-        this.getMenuTreeselect()
-      }).then(response => {
-        getMenuByRoleId(roleId).then(response => {
-          this.$refs.menu.setCheckedKeys(response.data.map(x => { return x.menuId }))
-        })
+        this.title = '修改用戶'
+        this.form.password = ''
       })
     },
     cancel() {
@@ -153,9 +179,9 @@ export default {
     submitForm: function() {
       this.$refs['form'].validate(valid => {
         if (valid) {
+          this.form.userRoles = this.form.roleIds.map(item => { return { roleId: this.form.id, item } })
           if (this.form.id != null) {
-            this.form.roleMenus = this.getMenuAllCheckedKeys().map(item => { return { roleId: this.form.id, menuId: item } })
-            updateRole(this.form).then(response => {
+            updateUser(this.form).then(response => {
               if (response.code === 200) {
                 this.msgSuccess('修改成功')
                 this.open = false
@@ -165,8 +191,7 @@ export default {
               }
             })
           } else {
-            this.form.roleMenus = this.getMenuAllCheckedKeys().map(item => { return { roleId: this.form.id, menuId: item } })
-            addRole(this.form).then(response => {
+            addUser(this.form).then(response => {
               if (response.code === 200) {
                 this.msgSuccess('新增成功')
                 this.open = false
@@ -181,33 +206,22 @@ export default {
     },
     // 表單重置
     reset() {
-      if (this.$refs.menu != null) {
-        this.$refs.menu.setCheckedKeys([])
-      }
       this.form = {
         id: undefined,
-        roleName: undefined,
-        roleCode: undefined,
-        orderNum: 1,
+        deptId: undefined,
+        loginName: undefined,
+        nameChn: undefined,
+        nameEng: undefined,
+        userType: undefined,
+        email: undefined,
+        internalPhone: undefined,
+        mobile: undefined,
+        gender: undefined,
         status: '1',
-        roleMenus: [],
-        remark: undefined
+        remark: undefined,
+        roleIds: []
       }
       this.resetForm('form')
-    },
-    getMenuTreeselect() {
-      menuTreeselect().then(response => {
-        this.menuOptions = response.data
-      })
-    },
-    // 所有功能表節點資料
-    getMenuAllCheckedKeys() {
-      // 目前被選中的菜單節點
-      const checkedKeys = this.$refs.menu.getCheckedKeys()
-      // 半選中的菜單節點
-      const halfCheckedKeys = this.$refs.menu.getHalfCheckedKeys()
-      checkedKeys.unshift.apply(checkedKeys, halfCheckedKeys)
-      return checkedKeys
     }
   }
 }
