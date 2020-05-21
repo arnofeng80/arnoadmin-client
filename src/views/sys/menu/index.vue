@@ -267,7 +267,6 @@ export default {
       listMenu().then(response => {
         this.menuOptions = []
         const menu = { id: 0, menuName: '主类目', children: [] }
-        console.log(response.data)
         menu.children = this.handleTree(response.data)
         this.menuOptions.push(menu)
       })

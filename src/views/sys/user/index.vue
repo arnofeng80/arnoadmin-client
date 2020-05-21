@@ -268,7 +268,7 @@ export default {
       userList: null,
       // 部門樹選項
       deptOptions: undefined,
-      deptMap: undefined,
+      deptMap: {},
       // 是否顯示彈出層
       open: false,
       // 部門名稱
@@ -342,7 +342,9 @@ export default {
         if (response.data != null && response.data.length > 0) {
           this.clearLeafChild(response.data)
         }
-        this.deptOptions = this.handleTree(response.data, 'id')
+        const deptTree = [{ id: 0, label: '所有部門', children: [] }]
+        deptTree[0].children = this.handleTree(response.data)
+        this.deptOptions = deptTree
         this.deptMap = Object.fromEntries(response.data.map(item => { return [item.id, item.deptName] }))
       })
     },
@@ -362,12 +364,11 @@ export default {
     },
     // 節點按一下事件
     handleNodeClick(data) {
-      this.queryParams.deptId = data.id
+      this.queryParams.deptId = data.id === 0 ? undefined : data.id
       this.getList()
     },
     // 使用者狀態修改
     handleStatusChange(row) {
-      console.log(row.status)
       const text = row.status === '1' ? '啟用' : '停用'
       this.$confirm('確認要"' + text + '"' + row.loginName + '用戶嗎?', '警告', {
         confirmButtonText: '確定',
