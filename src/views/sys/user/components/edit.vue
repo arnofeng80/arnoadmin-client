@@ -170,10 +170,7 @@ export default {
           this.form = formdata
           this.open = true
           this.title = '修改用戶'
-          console.log(formdata)
         })
-      }).then(response => {
-        console.log('then respone', response)
       })
     },
     cancel() {
