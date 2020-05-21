@@ -144,7 +144,7 @@
           <el-table-column label="英文名" align="center" prop="nameEng" :show-overflow-tooltip="true" />
           <el-table-column label="部門" align="center" :show-overflow-tooltip="true">
             <template slot-scope="scope">
-              {{ scope.row.deptId }}
+              {{ deptMap[scope.row.deptId] }}
             </template>
           </el-table-column>
           <el-table-column label="內線號碼" align="center" prop="internalPhone" width="120" />
@@ -247,7 +247,7 @@
 import Edit from '@/views/sys/user/components/edit'
 import { listUser, delUser, exportUser, resetUserPwd, changeUserStatus, importTemplate } from '@/api/sys/user'
 import { getToken } from '@/utils/auth'
-import { deptTree } from '@/api/sys/dept'
+import { fetchAll } from '@/api/sys/dept'
 
 export default {
   name: 'User',
@@ -268,6 +268,7 @@ export default {
       userList: null,
       // 部門樹選項
       deptOptions: undefined,
+      deptMap: undefined,
       // 是否顯示彈出層
       open: false,
       // 部門名稱
@@ -320,7 +321,7 @@ export default {
   },
   created() {
     this.getList()
-    this.getTreeselect()
+    this.getDepts()
     this.getDicts('sys_available').then(response => {
       this.statusOptions = response.data
     })
@@ -335,13 +336,14 @@ export default {
         this.loading = false
       })
     },
-    /** 查詢部門下拉樹結構 */
-    getTreeselect() {
-      deptTree().then(response => {
+    /** 查詢部門 */
+    getDepts() {
+      fetchAll().then(response => {
         if (response.data != null && response.data.length > 0) {
           this.clearLeafChild(response.data)
         }
-        this.deptOptions = response.data
+        this.deptOptions = this.handleTree(response.data, 'id')
+        this.deptMap = Object.fromEntries(response.data.map(item => { return [item.id, item.deptName] }))
       })
     },
     clearLeafChild(child) {

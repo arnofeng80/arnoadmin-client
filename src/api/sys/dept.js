@@ -9,6 +9,14 @@ export function listDept(query) {
   })
 }
 
+export function fetchAll(query) {
+  return request({
+    url: '/sys/dept/all',
+    method: 'get',
+    params: query
+  })
+}
+
 // 查询部门详细
 export function getDept(deptId) {
   return request({

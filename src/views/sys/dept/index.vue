@@ -134,7 +134,7 @@
 </template>
 
 <script>
-import { listDept, getDept, delDept, addDept, updateDept } from '@/api/sys/dept'
+import { fetchAll, getDept, delDept, addDept, updateDept } from '@/api/sys/dept'
 import Treeselect from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 
@@ -200,8 +200,8 @@ export default {
     /** 查询部门列表 */
     getList() {
       this.loading = true
-      listDept(this.queryParams).then(response => {
-        this.deptList = this.handleTree(response.data, 'id')
+      fetchAll(this.queryParams).then(response => {
+        this.deptList = this.handleTree(response.data)
         this.loading = false
       })
     },
@@ -218,8 +218,8 @@ export default {
     },
     /** 查询部门下拉树结构 */
     getTreeselect() {
-      listDept().then(response => {
-        this.deptOptions = this.handleTree(response.data, 'id')
+      fetchAll().then(response => {
+        this.deptOptions = this.handleTree(response.data)
       })
     },
     // 字典状态字典翻译
