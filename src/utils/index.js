@@ -415,3 +415,8 @@ export function praseStrEmpty(str) {
   }
   return str
 }
+
+export function download(url) {
+  console.log(process.env.VUE_APP_BASE_API + url)
+  window.location.href = process.env.VUE_APP_BASE_API + url
+}
