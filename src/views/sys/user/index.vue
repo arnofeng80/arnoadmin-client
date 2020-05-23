@@ -1,5 +1,6 @@
 <template>
   <div class="app-container">
+
     <el-row :gutter="20">
       <!--部門資料-->
       <el-col :span="4" :xs="24">
@@ -16,7 +17,7 @@
         <div class="head-container">
           <el-tree
             ref="tree"
-            :data="deptOptions"
+            :data="deptWithAll"
             :props="defaultProps"
             :expand-on-click-node="false"
             :filter-node-method="filterNode"
@@ -91,53 +92,53 @@
             <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
           </el-form-item>
         </el-form>
-
-        <el-row :gutter="10" class="mb8">
-          <el-col :span="1.5">
-            <el-button
-              type="primary"
-              icon="el-icon-plus"
-              size="mini"
-              @click="handleAdd"
-            >新增</el-button>
-          </el-col>
-          <el-col :span="1.5">
-            <el-button
-              type="success"
-              icon="el-icon-edit"
-              size="mini"
-              :disabled="single"
-              @click="handleUpdate"
-            >修改</el-button>
-          </el-col>
-          <el-col :span="1.5">
-            <el-button
-              type="danger"
-              icon="el-icon-delete"
-              size="mini"
-              :disabled="multiple"
-              @click="handleDelete"
-            >刪除</el-button>
-          </el-col>
-          <el-col :span="1.5">
-            <el-button
-              type="info"
-              icon="el-icon-upload2"
-              size="mini"
-              @click="handleImport"
-            >導入</el-button>
-          </el-col>
-          <el-col :span="1.5">
-            <el-button
-              type="warning"
-              icon="el-icon-download"
-              size="mini"
-              @click="handleExport"
-            >匯出</el-button>
-          </el-col>
-        </el-row>
-
-        <el-table v-loading="loading" :data="userList" @selection-change="handleSelectionChange">
+        <div class="filter-container">
+          <el-row :gutter="10" class="mb8">
+            <el-col :span="1.5">
+              <el-button
+                type="primary"
+                icon="el-icon-plus"
+                size="mini"
+                @click="handleAdd"
+              >新增</el-button>
+            </el-col>
+            <el-col :span="1.5">
+              <el-button
+                type="success"
+                icon="el-icon-edit"
+                size="mini"
+                :disabled="single"
+                @click="handleUpdate"
+              >修改</el-button>
+            </el-col>
+            <el-col :span="1.5">
+              <el-button
+                type="danger"
+                icon="el-icon-delete"
+                size="mini"
+                :disabled="multiple"
+                @click="handleDelete"
+              >刪除</el-button>
+            </el-col>
+            <el-col :span="1.5">
+              <el-button
+                type="info"
+                icon="el-icon-upload2"
+                size="mini"
+                @click="handleImport"
+              >導入</el-button>
+            </el-col>
+            <el-col :span="1.5">
+              <el-button
+                type="warning"
+                icon="el-icon-download"
+                size="mini"
+                @click="handleExport"
+              >匯出</el-button>
+            </el-col>
+          </el-row>
+        </div>
+        <el-table v-loading="loading" :data="userList" border highlight-current-row :stripe="true" @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55" align="center" />
           <el-table-column label="登入名" align="center" prop="loginName" />
           <el-table-column label="中文名" align="center" prop="nameChn" :show-overflow-tooltip="true" />
@@ -242,7 +243,8 @@ export default {
       // 使用者表格資料
       userList: null,
       // 部門樹選項
-      deptOptions: undefined,
+      deptWithAll: [],
+      deptOptions: [],
       deptMap: {},
       // 是否顯示彈出層
       open: false,
@@ -302,9 +304,10 @@ export default {
         if (response.data != null && response.data.length > 0) {
           this.clearLeafChild(response.data)
         }
-        const deptTree = [{ id: 0, label: '所有部門', children: [] }]
-        deptTree[0].children = this.handleTree(response.data)
-        this.deptOptions = deptTree
+        this.deptOptions = this.handleTree(response.data)
+        const deptTreeWithAll = [{ id: 0, label: '所有部門', children: [] }]
+        deptTreeWithAll[0].children = this.deptOptions
+        this.deptWithAll = deptTreeWithAll
         this.deptMap = Object.fromEntries(response.data.map(item => { return [item.id, item.deptName] }))
       })
     },
@@ -408,10 +411,8 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(function() {
-        return exportUser(queryParams)
-      }).then(response => {
-        this.download(response.msg)
-      }).catch(function() {})
+        exportUser(queryParams)
+      })
     }
   }
 }

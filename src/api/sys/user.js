@@ -49,29 +49,17 @@ export function delUser(userId) {
 
 // 导出用户
 export function exportUser(query) {
-  return new Promise((resolve, reject) => {
-    request({
-      method: 'post',
-      url: '/sys/user/export',
-      data: query,
-      responseType: 'blob'
-    }).then(data => {
-      console.log('then')
-      console.log(typeof (data))
-      const blob = new Blob([data], {
-        type: 'application/vnd.ms-excel'
-      })
-      FileSaver.saveAs(blob, name + '.csv')
-
-      // console.log(data)
-      // FileSaver.saveAs(data, 'export.xlsx')
-      resolve(data)
-    }).catch(error => {
-      console.log('error')
-      reject(error.toString())
+  request({
+    method: 'post',
+    url: '/sys/user/export',
+    data: query,
+    responseType: 'blob'
+  }).then(res => {
+    const blob = new Blob([res], {
+      type: 'application/vnd.ms-excel'
     })
+    FileSaver.saveAs(blob, 'test.xlsx')
   })
-  // window.location.href = process.env.VUE_APP_BASE_API + '/sys/user/export'
 }
 
 // 用户密码重置

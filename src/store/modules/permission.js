@@ -32,12 +32,8 @@ const actions = {
     return new Promise(resolve => {
       // 向后端请求路由数据
       getRouters().then(res => {
-        console.log('res', res)
         const accessedRoutes = menuRouterMap(res.data)
-        console.log('accessedRoutes', accessedRoutes)
-        // const accessedRoutes = filterAsyncRouter(menuRouter)
         accessedRoutes.push({ path: '*', redirect: '/404', hidden: true })
-        console.log('accessedRoutes', accessedRoutes)
         commit('SET_ROUTES', accessedRoutes)
         resolve(accessedRoutes)
       })

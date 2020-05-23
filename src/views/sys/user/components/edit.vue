@@ -3,9 +3,9 @@
     <el-dialog :title="title" :visible.sync="open" width="600px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
         <el-row>
-          <el-col v-if="form.id == undefined" :span="12">
+          <el-col :span="12">
             <el-form-item label="賬戶名" prop="loginName">
-              <el-input v-model="form.loginName" placeholder="賬戶名" />
+              <el-input v-model="form.loginName" :disabled="form.id !== undefined" placeholder="賬戶名" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
