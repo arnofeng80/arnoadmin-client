@@ -12,10 +12,10 @@
             @keyup.enter.native="handleQuery"
           />
         </el-form-item>
-        <el-form-item label="許可權字元" prop="roleCode">
+        <el-form-item label="角色編碼" prop="roleCode">
           <el-input
             v-model="queryParams.roleCode"
-            placeholder="請輸入許可權字元"
+            placeholder="請輸入角色編碼"
             clearable
             size="small"
             style="width: 240px"
@@ -114,7 +114,7 @@
           <span>{{ parseTime(scope.row.createTime) }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+      <el-table-column label="操作" align="center" class-name="small-padding">
         <template slot-scope="scope">
           <el-button
             size="mini"

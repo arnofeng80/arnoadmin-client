@@ -48,12 +48,19 @@
       <el-table-column prop="deptName" label="部门名称" width="260" />
       <el-table-column prop="orderNum" label="排序" width="200" />
       <el-table-column prop="status" label="状态" :formatter="statusFormat" width="100" />
+
+      <el-table-column label="状态" align="center" :show-overflow-tooltip="true">
+        <template slot-scope="scope">
+          {{ deptMap[scope.row.deptId] }}
+        </template>
+      </el-table-column>
+
       <el-table-column label="创建时间" align="center" prop="createTime" width="200">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.createTime) }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+      <el-table-column label="操作" align="center" class-name="small-padding">
         <template slot-scope="scope">
           <el-button
             size="mini"
@@ -78,69 +85,22 @@
       </el-table-column>
     </el-table>
 
-    <!-- 添加或修改部门对话框 -->
-    <el-dialog :title="title" :visible.sync="open" width="600px" append-to-body>
-      <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-row>
-          <el-col v-if="form.parentId !== 0" :span="24">
-            <el-form-item label="上级部门" prop="parentId">
-              <treeselect v-model="form.parentId" :options="deptOptions" :normalizer="normalizer" placeholder="选择上级部门" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="部门名称" prop="deptName">
-              <el-input v-model="form.deptName" placeholder="请输入部门名称" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="显示排序" prop="orderNum">
-              <el-input-number v-model="form.orderNum" controls-position="right" :min="0" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="负责人" prop="leader">
-              <el-input v-model="form.leader" placeholder="请输入负责人" maxlength="20" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="联系电话" prop="phone">
-              <el-input v-model="form.phone" placeholder="请输入联系电话" maxlength="11" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="邮箱" prop="email">
-              <el-input v-model="form.email" placeholder="请输入邮箱" maxlength="50" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="部门状态">
-              <el-radio-group v-model="form.status">
-                <el-radio
-                  v-for="dict in statusOptions"
-                  :key="dict.dictValue"
-                  :label="dict.dictValue"
-                >{{ dict.dictLabel }}</el-radio>
-              </el-radio-group>
-            </el-form-item>
-          </el-col>
-        </el-row>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="submitForm">确 定</el-button>
-        <el-button @click="cancel">取 消</el-button>
-      </div>
-    </el-dialog>
+    <edit
+      ref="editor"
+      :dept-options="deptOptions"
+      :status-options="statusOptions"
+      @getList="getList"
+    />
   </div>
 </template>
 
 <script>
-import { fetchAll, getDept, delDept, addDept, updateDept } from '@/api/sys/dept'
-import Treeselect from '@riophae/vue-treeselect'
-import '@riophae/vue-treeselect/dist/vue-treeselect.css'
+import Edit from '@/views/sys/dept/components/edit'
+import { fetchAll, delDept } from '@/api/sys/dept'
 
 export default {
   name: 'Dept',
-  components: { Treeselect },
+  components: { Edit },
   data() {
     return {
       // 遮罩层
@@ -149,50 +109,19 @@ export default {
       deptList: [],
       // 部门树选项
       deptOptions: [],
-      // 弹出层标题
-      title: '',
-      // 是否显示弹出层
-      open: false,
       // 状态数据字典
       statusOptions: [],
       // 查询参数
       queryParams: {
         deptName: undefined,
         status: undefined
-      },
-      // 表单参数
-      form: {},
-      // 表单校验
-      rules: {
-        parentId: [
-          { required: true, message: '上级部门不能为空', trigger: 'blur' }
-        ],
-        deptName: [
-          { required: true, message: '部门名称不能为空', trigger: 'blur' }
-        ],
-        orderNum: [
-          { required: true, message: '菜单顺序不能为空', trigger: 'blur' }
-        ],
-        email: [
-          {
-            type: 'email',
-            message: "'请输入正确的邮箱地址",
-            trigger: ['blur', 'change']
-          }
-        ],
-        phone: [
-          {
-            pattern: /^1[3|4|5|6|7|8|9][0-9]\d{8}$/,
-            message: '请输入正确的手机号码',
-            trigger: 'blur'
-          }
-        ]
       }
     }
   },
   created() {
     this.getList()
-    this.getDicts('sys_normal_disable').then(response => {
+    this.getTreeselect()
+    this.getDicts('sys_available').then(response => {
       this.statusOptions = response.data
     })
   },
@@ -220,11 +149,11 @@ export default {
     getTreeselect() {
       fetchAll().then(response => {
         this.deptOptions = this.handleTree(response.data)
+        console.log(this.deptOptions)
       })
     },
     // 字典状态字典翻译
     statusFormat(row, column) {
-      console.log('formatter')
       return this.selectDictLabel(this.statusOptions, row.status)
     },
     // 取消按钮
@@ -250,55 +179,14 @@ export default {
     handleQuery() {
       this.getList()
     },
-    /** 新增按钮操作 */
+    /** 新增按鈕操作 */
     handleAdd(row) {
-      this.reset()
-      this.getTreeselect()
-      if (row !== undefined) {
-        this.form.parentId = row.id
-      }
-      this.open = true
-      this.title = '添加部门'
+      this.$refs['editor'].create(row.id)
     },
-    /** 修改按钮操作 */
+    /** 修改按鈕操作 */
     handleUpdate(row) {
-      this.reset()
-      this.getTreeselect()
-      getDept(row.id).then(response => {
-        this.form = response.data
-        this.open = true
-        this.title = '修改部门'
-      })
-    },
-    /** 提交按钮 */
-    submitForm: function() {
-      this.$refs['form'].validate(valid => {
-        if (valid) {
-          if (this.form.id !== undefined) {
-            console.log('this.form', this.form)
-            updateDept(this.form).then(response => {
-              if (response.code === 200) {
-                this.msgSuccess('修改成功')
-                this.open = false
-                this.getList()
-              } else {
-                this.msgError(response.msg)
-              }
-            })
-          } else {
-            console.log('this.form', this.form)
-            addDept(this.form).then(response => {
-              if (response.code === 200) {
-                this.msgSuccess('新增成功')
-                this.open = false
-                this.getList()
-              } else {
-                this.msgError(response.msg)
-              }
-            })
-          }
-        }
-      })
+      const deptId = row.id || this.ids
+      this.$refs['editor'].edit(deptId)
     },
     /** 删除按钮操作 */
     handleDelete(row) {

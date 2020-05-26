@@ -138,7 +138,7 @@
             </el-col>
           </el-row>
         </div>
-        <el-table v-loading="loading" :data="userList" border highlight-current-row :stripe="true" @selection-change="handleSelectionChange">
+        <el-table v-loading="loading" :data="userList" border fit highlight-current-row :stripe="true" @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55" align="center" />
           <el-table-column label="登入名" align="center" prop="loginName" />
           <el-table-column label="中文名" align="center" prop="nameChn" :show-overflow-tooltip="true" />
@@ -168,7 +168,7 @@
             label="操作"
             align="center"
             width="180"
-            class-name="small-padding fixed-width"
+            class-name="small-padding"
           >
             <template slot-scope="scope">
               <el-button
