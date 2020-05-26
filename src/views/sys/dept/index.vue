@@ -41,26 +41,29 @@
     <el-table
       v-loading="loading"
       :data="deptList"
+      border
+      fit
+      highlight-current-row
+      :stripe="true"
       row-key="id"
       default-expand-all
       :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
+      @sort-change="sortChange"
     >
-      <el-table-column prop="deptName" label="部门名称" width="260" />
-      <el-table-column prop="orderNum" label="排序" width="200" />
-      <el-table-column prop="status" label="状态" :formatter="statusFormat" width="100" />
-
-      <el-table-column label="状态" align="center" :show-overflow-tooltip="true">
+      <el-table-column prop="deptName" label="部门名称" width="300" />
+      <el-table-column prop="orderNum" label="排序" sortable="custom" align="center" width="100" />
+      <el-table-column prop="status" label="状态" align="center" sortable="custom" width="100">
         <template slot-scope="scope">
-          {{ deptMap[scope.row.deptId] }}
+          {{ statusMap[scope.row.status] }}
         </template>
       </el-table-column>
 
-      <el-table-column label="创建时间" align="center" prop="createTime" width="200">
+      <el-table-column label="创建时间" align="center" sortable="custom" prop="createTime" width="200">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.createTime) }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" class-name="small-padding">
+      <el-table-column label="操作" align="center" class-name="small-padding" width="200">
         <template slot-scope="scope">
           <el-button
             size="mini"
@@ -111,10 +114,13 @@ export default {
       deptOptions: [],
       // 状态数据字典
       statusOptions: [],
+      statusMap: {},
       // 查询参数
       queryParams: {
         deptName: undefined,
-        status: undefined
+        status: undefined,
+        sortColumn: 'orderNum',
+        sortType: 'ascending'
       }
     }
   },
@@ -123,6 +129,7 @@ export default {
     this.getTreeselect()
     this.getDicts('sys_available').then(response => {
       this.statusOptions = response.data
+      this.statusMap = Object.fromEntries(response.data.map(item => { return [item.dictValue, item.dictLabel] }))
     })
   },
   methods: {
@@ -133,6 +140,12 @@ export default {
         this.deptList = this.handleTree(response.data)
         this.loading = false
       })
+    },
+    sortChange(column) {
+      console.log(column)
+      this.queryParams.sortColumn = column.prop
+      this.queryParams.sortType = column.order
+      this.getList()
     },
     /** 转换部门数据结构 */
     normalizer(node) {
@@ -147,7 +160,7 @@ export default {
     },
     /** 查询部门下拉树结构 */
     getTreeselect() {
-      fetchAll().then(response => {
+      fetchAll({}).then(response => {
         this.deptOptions = this.handleTree(response.data)
         console.log(this.deptOptions)
       })

@@ -214,7 +214,6 @@ export default {
         })
     },
     sortChange(column) {
-      console.log(column)
       this.queryParams.sortColumn = column.prop
       this.queryParams.sortType = column.order
       this.getList()

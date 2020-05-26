@@ -4,16 +4,16 @@ import request from '@/utils/request'
 export function listDept(query) {
   return request({
     url: '/sys/dept/list',
-    method: 'get',
-    params: query
+    method: 'post',
+    data: query
   })
 }
 
 export function fetchAll(query) {
   return request({
     url: '/sys/dept/all',
-    method: 'get',
-    params: query
+    method: 'post',
+    data: query
   })
 }
 
