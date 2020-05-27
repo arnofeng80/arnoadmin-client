@@ -3,7 +3,7 @@
     <el-dialog :title="title" :visible.sync="open" width="600px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
         <el-row>
-          <el-col v-if="form.parentId !== 0" :span="24">
+          <el-col v-if="form.parentId !== '0'" :span="24">
             <el-form-item label="上级部门" prop="parentId">
               <treeselect v-model="form.parentId" :options="deptOptions" :normalizer="normalizer" placeholder="选择上级部门" />
             </el-form-item>
@@ -54,20 +54,13 @@
   </div>
 </template>
 <script>
-import { getDept, addDept, updateDept } from '@/api/sys/dept'
+import { fetchAll, getDept, addDept, updateDept } from '@/api/sys/dept'
 import Treeselect from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 
 export default {
-  name: 'Dept',
   components: { Treeselect },
   props: {
-    deptOptions: {
-      type: Array,
-      default() {
-        return []
-      }
-    },
     statusOptions: {
       type: Array,
       default() {
@@ -83,6 +76,8 @@ export default {
       open: false,
       // 表单参数
       form: {},
+      // 部门树选项
+      deptOptions: [],
       // 表单校验
       rules: {
         parentId: [
@@ -100,16 +95,12 @@ export default {
             message: "'请输入正确的邮箱地址",
             trigger: ['blur', 'change']
           }
-        ],
-        phone: [
-          {
-            pattern: /^1[3|4|5|6|7|8|9][0-9]\d{8}$/,
-            message: '请输入正确的手机号码',
-            trigger: 'blur'
-          }
         ]
       }
     }
+  },
+  created() {
+    this.getTreeselect()
   },
   methods: {
     /** 转换部门数据结构 */
@@ -125,6 +116,7 @@ export default {
     },
     create(parentId) {
       this.reset()
+      this.getTreeselect()
       if (parentId !== undefined) {
         this.form.parentId = parentId
       }
@@ -133,6 +125,7 @@ export default {
     },
     edit(deptId) {
       this.reset()
+      this.getTreeselect()
       getDept(deptId).then(response => {
         this.form = response.data
         this.open = true
@@ -163,7 +156,6 @@ export default {
       this.$refs['form'].validate(valid => {
         if (valid) {
           if (this.form.id !== undefined) {
-            console.log('this.form', this.form)
             updateDept(this.form).then(response => {
               if (response.code === 200) {
                 this.msgSuccess('修改成功')
@@ -174,7 +166,6 @@ export default {
               }
             })
           } else {
-            console.log('this.form', this.form)
             addDept(this.form).then(response => {
               if (response.code === 200) {
                 this.msgSuccess('新增成功')
@@ -186,6 +177,11 @@ export default {
             })
           }
         }
+      })
+    },
+    getTreeselect() {
+      fetchAll().then(response => {
+        this.deptOptions = this.handleTree(response.data)
       })
     }
   }

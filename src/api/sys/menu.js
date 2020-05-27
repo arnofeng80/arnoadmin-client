@@ -1,11 +1,11 @@
 import request from '@/utils/request'
 
 // 查询菜单列表
-export function listMenu(query) {
+export function fetchAll(query) {
   return request({
-    url: '/sys/menu/list',
-    method: 'get',
-    params: query
+    url: '/sys/menu/all',
+    method: 'post',
+    data: query === undefined ? {} : query
   })
 }
 

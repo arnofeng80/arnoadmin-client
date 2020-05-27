@@ -300,7 +300,7 @@ export default {
     },
     /** 查詢部門 */
     getDepts() {
-      fetchAll().then(response => {
+      fetchAll({}).then(response => {
         if (response.data != null && response.data.length > 0) {
           this.clearLeafChild(response.data)
         }

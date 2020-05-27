@@ -114,7 +114,7 @@
           <span>{{ parseTime(scope.row.createTime) }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" class-name="small-padding">
+      <el-table-column label="操作" align="center" class-name="small-padding" width="200">
         <template slot-scope="scope">
           <el-button
             size="mini"
@@ -127,7 +127,7 @@
             type="text"
             icon="el-icon-circle-check"
             @click="handleDataScope(scope.row)"
-          >數據許可權</el-button>
+          >數據權限</el-button>
           <el-button
             size="mini"
             type="text"

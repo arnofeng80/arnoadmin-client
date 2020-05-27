@@ -13,7 +13,7 @@ export function fetchAll(query) {
   return request({
     url: '/sys/dept/all',
     method: 'post',
-    data: query
+    data: query === undefined ? {} : query
   })
 }
 

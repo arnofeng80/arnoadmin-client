@@ -3,8 +3,8 @@ import request from '@/utils/request'
 export function listData(query) {
   return request({
     url: '/sys/dict/list',
-    method: 'get',
-    params: query
+    method: 'post',
+    data: query
   })
 }
 
@@ -38,10 +38,11 @@ export function updateData(data) {
   })
 }
 
-export function delData(dictCode) {
+export function delData(dictId) {
   return request({
-    url: '/sys/dict/' + dictCode,
-    method: 'delete'
+    url: '/sys/dict',
+    method: 'delete',
+    data: dictId
   })
 }
 

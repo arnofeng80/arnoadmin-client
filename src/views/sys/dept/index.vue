@@ -57,7 +57,6 @@
           {{ statusMap[scope.row.status] }}
         </template>
       </el-table-column>
-
       <el-table-column label="创建时间" align="center" sortable="custom" prop="createTime" width="200">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.createTime) }}</span>
@@ -90,7 +89,6 @@
 
     <edit
       ref="editor"
-      :dept-options="deptOptions"
       :status-options="statusOptions"
       @getList="getList"
     />
@@ -110,8 +108,6 @@ export default {
       loading: true,
       // 表格树数据
       deptList: [],
-      // 部门树选项
-      deptOptions: [],
       // 状态数据字典
       statusOptions: [],
       statusMap: {},
@@ -126,7 +122,6 @@ export default {
   },
   created() {
     this.getList()
-    this.getTreeselect()
     this.getDicts('sys_available').then(response => {
       this.statusOptions = response.data
       this.statusMap = Object.fromEntries(response.data.map(item => { return [item.dictValue, item.dictLabel] }))
@@ -137,12 +132,12 @@ export default {
     getList() {
       this.loading = true
       fetchAll(this.queryParams).then(response => {
+        console.log(response.data)
         this.deptList = this.handleTree(response.data)
         this.loading = false
       })
     },
     sortChange(column) {
-      console.log(column)
       this.queryParams.sortColumn = column.prop
       this.queryParams.sortType = column.order
       this.getList()
@@ -158,36 +153,6 @@ export default {
         children: node.children
       }
     },
-    /** 查询部门下拉树结构 */
-    getTreeselect() {
-      fetchAll({}).then(response => {
-        this.deptOptions = this.handleTree(response.data)
-        console.log(this.deptOptions)
-      })
-    },
-    // 字典状态字典翻译
-    statusFormat(row, column) {
-      return this.selectDictLabel(this.statusOptions, row.status)
-    },
-    // 取消按钮
-    cancel() {
-      this.open = false
-      this.reset()
-    },
-    // 表单重置
-    reset() {
-      this.form = {
-        id: undefined,
-        parentId: undefined,
-        deptName: undefined,
-        orderNum: undefined,
-        leader: undefined,
-        phone: undefined,
-        email: undefined,
-        status: '0'
-      }
-      this.resetForm('form')
-    },
     /** 搜索按钮操作 */
     handleQuery() {
       this.getList()
@@ -198,12 +163,11 @@ export default {
     },
     /** 修改按鈕操作 */
     handleUpdate(row) {
-      const deptId = row.id || this.ids
-      this.$refs['editor'].edit(deptId)
+      this.$refs['editor'].edit(row.id)
     },
     /** 删除按钮操作 */
     handleDelete(row) {
-      this.$confirm('是否确认删除名称为"' + row.deptName + '"的数据项?', '警告', {
+      this.$confirm('是否确认删除?', '警告', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'

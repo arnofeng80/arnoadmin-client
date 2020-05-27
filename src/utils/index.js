@@ -379,7 +379,7 @@ export function handleTree(data, id, parentId, children, rootId) {
     // 返回第一层
     return father[parentId] === rootId
   })
-  return treeData !== '' ? treeData : data
+  return treeData.length > 0 ? treeData : data
 }
 
 export function selectDictLabel(datas, value) {

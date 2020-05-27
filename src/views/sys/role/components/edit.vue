@@ -77,6 +77,7 @@ export default {
   created() {
     this.getDicts('sys_available').then(response => {
       this.statusOptions = response.data
+      console.log(this.statusOptions)
     })
   },
   methods: {
