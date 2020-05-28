@@ -4,8 +4,8 @@ import request from '@/utils/request'
 export function listConfig(query) {
   return request({
     url: '/sys/config/list',
-    method: 'get',
-    params: query
+    method: 'post',
+    data: query
   })
 }
 
@@ -46,8 +46,9 @@ export function updateConfig(data) {
 // 删除参数配置
 export function delConfig(configId) {
   return request({
-    url: '/sys/config/' + configId,
-    method: 'delete'
+    url: '/sys/config',
+    method: 'delete',
+    data: configId
   })
 }
 
