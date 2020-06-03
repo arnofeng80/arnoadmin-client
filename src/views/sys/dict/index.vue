@@ -201,7 +201,7 @@ export default {
     },
     /** 删除按钮操作 */
     handleDelete(row) {
-      const dictId = row.id || this.ids
+      const dictId = row.id != null ? [row.id] : this.ids
       this.$confirm('是否确认删除已选的数据项?', '警告', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
