@@ -45,27 +45,26 @@ service.interceptors.response.use(
   response => {
     const res = response.data
     // if the custom code is not 20000, it is judged as an error.
-    if (res.code !== 200 && res.code !== 20000) {
-      Message({
-        message: res.msg || 'Error',
-        type: 'error',
-        duration: 5 * 1000
-      })
-
-      // 50008: Illegal token; 50012: Other clients logged in; 50014: Token expired;
-      if (res.code === 50008 || res.code === 50012 || res.code === 50014) {
-        // to re-login
-        MessageBox.confirm('You have been logged out, you can cancel to stay on this page, or log in again', 'Confirm logout', {
-          confirmButtonText: 'Re-Login',
-          cancelButtonText: 'Cancel',
+    if (res.code === 401) {
+      MessageBox.confirm(
+        '登錄狀態已過期，您可以繼續留在該頁面，或者重新登錄',
+        '系統提示',
+        {
+          confirmButtonText: '重新登錄',
+          cancelButtonText: '取消',
           type: 'warning'
-        }).then(() => {
-          store.dispatch('user/resetToken').then(() => {
-            location.reload()
-          })
+        }
+      ).then(() => {
+        store.dispatch('LogOut').then(() => {
+          location.reload() // 为了重新实例化vue-router对象 避免bug
         })
-      }
-      return Promise.reject(new Error(res.message || 'Error'))
+      })
+    }
+    if (res.code !== 200 && res.code !== 20000) {
+      Notification.error({
+        title: res.data.msg
+      })
+      return Promise.reject('error')
     } else {
       return res
     }
