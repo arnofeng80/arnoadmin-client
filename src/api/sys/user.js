@@ -117,6 +117,13 @@ export function getRoleByUserId(userId) {
   })
 }
 
+export function getRolesAndPermissions(userId) {
+  return request({
+    url: '/sys/user/getRolesAndPermissions',
+    method: 'get'
+  })
+}
+
 // 用户头像上传
 export function uploadAvatar(data) {
   return request({
