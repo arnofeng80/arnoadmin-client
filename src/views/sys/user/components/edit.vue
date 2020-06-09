@@ -165,7 +165,7 @@ export default {
       getUser(userId).then(response => {
         var formdata = response.data
         getRoleByUserId(userId).then(response => {
-          formdata.roleIds = response.data.map(item => { return item.roleId })
+          formdata.roleIds = response.data.map(item => { return item.id })
           formdata.password = ''
           this.form = formdata
           this.open = true
@@ -180,7 +180,7 @@ export default {
     submitForm: function() {
       this.$refs['form'].validate(valid => {
         if (valid) {
-          this.form.userRoles = this.form.roleIds.map(item => { return { roleId: item, userId: this.form.id } })
+          this.form.userRoles = this.form.roleIds.filter(item => item).map(item => { return { roleId: item, userId: this.form.id } })
           if (this.form.id != null) {
             updateUser(this.form).then(response => {
               if (response.code === 200) {

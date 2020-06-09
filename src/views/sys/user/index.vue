@@ -122,6 +122,7 @@
             </el-col>
             <el-col :span="1.5">
               <el-button
+                v-permission="['sys:user:import']"
                 type="info"
                 icon="el-icon-upload2"
                 size="mini"
@@ -130,6 +131,7 @@
             </el-col>
             <el-col :span="1.5">
               <el-button
+                v-permission="['sys:user:export']"
                 type="warning"
                 icon="el-icon-download"
                 size="mini"

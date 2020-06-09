@@ -39,7 +39,7 @@
       <el-table-column prop="menuName" label="菜单名称" :show-overflow-tooltip="true" width="160" />
       <el-table-column prop="icon" label="图标" align="center" width="100">
         <template slot-scope="scope">
-          <svg-icon :icon-class="scope.row.icon" />
+          <svg-icon :icon-class="scope.row.icon || ''" />
         </template>
       </el-table-column>
       <el-table-column prop="orderNum" label="排序" width="60" />
@@ -60,7 +60,7 @@
           <span>{{ parseTime(scope.row.createTime) }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" class-name="small-padding" width="200">
+      <el-table-column label="操作" align="center" class-name="small-padding" width="250">
         <template slot-scope="scope">
           <el-button
             size="mini"
@@ -74,6 +74,12 @@
             icon="el-icon-plus"
             @click="handleAdd(scope.row)"
           >新增</el-button>
+          <el-button
+            size="mini"
+            type="text"
+            icon="el-icon-plus"
+            @click="handleCopy(scope.row)"
+          >複製</el-button>
           <el-button
             size="mini"
             type="text"
@@ -115,6 +121,7 @@ export default {
       statusMap: {},
       // 查询参数
       queryParams: {
+        sortColumn: 'orderNum',
         menuName: undefined,
         visible: undefined
       }
@@ -151,6 +158,9 @@ export default {
     /** 修改按钮操作 */
     handleUpdate(row) {
       this.$refs['editor'].edit(row.id)
+    },
+    handleCopy(row) {
+      this.$refs['editor'].copy(row.id)
     },
     /** 删除按钮操作 */
     handleDelete(row) {

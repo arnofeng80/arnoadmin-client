@@ -165,7 +165,6 @@ export default {
     },
     /** 转换菜单数据结构 */
     normalizer(node) {
-      console.log(node)
       if (node.children && !node.children.length) {
         delete node.children
       }
@@ -200,6 +199,16 @@ export default {
         this.form = response.data
         this.open = true
         this.title = '修改菜单'
+      })
+    },
+    copy(menuId) {
+      this.reset()
+      this.getTreeselect()
+      getMenu(menuId).then(response => {
+        response.data.id = undefined
+        this.form = response.data
+        this.open = true
+        this.title = '複製菜单'
       })
     },
     // 取消按钮

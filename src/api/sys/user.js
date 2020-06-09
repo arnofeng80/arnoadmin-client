@@ -112,7 +112,7 @@ export function updateUserPwd(oldPassword, newPassword) {
 
 export function getRoleByUserId(userId) {
   return request({
-    url: '/sys/user/dept/' + userId,
+    url: '/sys/user/roles/' + userId,
     method: 'get'
   })
 }

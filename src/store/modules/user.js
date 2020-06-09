@@ -8,7 +8,8 @@ const state = {
   name: '',
   avatar: '',
   introduction: '',
-  roles: []
+  roles: [],
+  perms: []
 }
 
 const mutations = {
@@ -26,6 +27,9 @@ const mutations = {
   },
   SET_ROLES: (state, roles) => {
     state.roles = roles
+  },
+  SET_PERMS: (state, perms) => {
+    state.perms = perms
   }
 }
 
@@ -54,7 +58,7 @@ const actions = {
           reject('Verification failed, please Login again.')
         }
 
-        const { roles, loginName, avatar, introduction } = data
+        const { roles, permissions, loginName, avatar, introduction } = data
 
         // roles must be a non-empty array
         if (!roles || roles.length <= 0) {
@@ -62,6 +66,7 @@ const actions = {
         }
 
         commit('SET_ROLES', roles)
+        commit('SET_PERMS', permissions)
         commit('SET_NAME', loginName)
         commit('SET_AVATAR', avatar)
         commit('SET_INTRODUCTION', introduction)
@@ -78,6 +83,7 @@ const actions = {
       logout(state.token).then(() => {
         commit('SET_TOKEN', '')
         commit('SET_ROLES', [])
+        commit('SET_PERMS', [])
         removeToken()
         resetRouter()
 
@@ -97,6 +103,7 @@ const actions = {
     return new Promise(resolve => {
       commit('SET_TOKEN', '')
       commit('SET_ROLES', [])
+      commit('SET_PERMS', [])
       removeToken()
       resolve()
     })
