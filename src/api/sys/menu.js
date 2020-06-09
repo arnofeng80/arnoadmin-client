@@ -53,7 +53,7 @@ export function delMenu(menuId) {
 
 export const getRouters = () => {
   return request({
-    url: '/getRouters',
+    url: '/sys/user/findMenuTree',
     method: 'get'
   })
 }
